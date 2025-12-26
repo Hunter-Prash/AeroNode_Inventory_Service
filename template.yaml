@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  AeroNode-Inventory-Service: 
+  A high-concurrency event-driven microservice for flight inventory management.
+
+# Global settings to ensure uniform performance across the service
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 128
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        DB_HOST: "aeronode-rds-server.cf28seae0k2m.ap-south-1.rds.amazonaws.com"
+        DB_PORT: "5432"
+        DB_NAME: "Inventory_DB"
+        DB_USER: "postgres"
+        DB_PASSWORD: "Admin$1234" # For MVP; in Production, we'll use Secrets Manager
+        NODE_ENV: "production"
+
+Resources:
+  # The central engine for AeroNode's inventory logic
+  AeroNodeInventoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: inventory_backend/  
+      Handler: index.handler
+      Description: Core function for AeroNode seat searches, locking, and inventory management.
+      # Essential policy for CloudWatch visibility (Debugging)
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        
+        AeroNodeApi:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
