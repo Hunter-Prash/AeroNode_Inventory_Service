@@ -1,19 +1,36 @@
 'use client';
 
 import { useState } from 'react';
-import { Plane, Calendar, User, ChevronDown, Repeat, Search, MapPin } from 'lucide-react';
+import { Plane, User, Search, Briefcase } from 'lucide-react';
 import styles from './SearchWidget.module.css';
+import DatePicker from './DatePicker';
+import CustomSelect from './CustomSelect';
 
 export default function SearchWidget() {
     const [origin, setOrigin] = useState({ code: 'NYC', city: 'New York' });
     const [destination, setDestination] = useState({ code: 'TYO', city: 'Tokyo' });
-    const [passengers, setPassengers] = useState(2);
-    const [tripClass, setTripClass] = useState('Business');
+
+    // State for operational components
+    const [departureDate, setDepartureDate] = useState('2024-10-15');
+    const [returnDate, setReturnDate] = useState('2024-10-22');
+    const [passengers, setPassengers] = useState<string | number>(2);
+    const [tripClass, setTripClass] = useState<string | number>('Business');
 
     const handleSwap = () => {
         const temp = origin;
         setOrigin(destination);
         setDestination(temp);
+    };
+
+    const handleSearch = () => {
+        alert(`Searching flights:
+      From: ${origin.city} (${origin.code})
+      To: ${destination.city} (${destination.code})
+      Depart: ${departureDate}
+      Return: ${returnDate}
+      Travelers: ${passengers}
+      Class: ${tripClass}
+    `);
     };
 
     return (
@@ -50,7 +67,7 @@ export default function SearchWidget() {
 
                 <button
                     className={styles.searchButton}
-                    onClick={() => alert(`Searching flights from ${origin.city} to ${destination.city}`)}
+                    onClick={handleSearch}
                 >
                     <Search size={24} />
                 </button>
@@ -59,39 +76,45 @@ export default function SearchWidget() {
             {/* Details Row */}
             <div className={styles.filtersRow}>
 
-                <div className={styles.filterItem}>
-                    <span className={styles.label}>Departure</span>
-                    <div className={styles.filterValue}>
-                        <Calendar size={16} className="text-blue-400" />
-                        <span>2024-10-15</span>
-                    </div>
-                </div>
+                <DatePicker
+                    label="Departure"
+                    value={departureDate}
+                    onChange={setDepartureDate}
+                />
 
-                <div className={styles.filterItem}>
-                    <span className={styles.label}>Return</span>
-                    <div className={styles.filterValue}>
-                        <Calendar size={16} className="text-blue-400" />
-                        <span>2024-10-22</span>
-                    </div>
-                </div>
+                <DatePicker
+                    label="Return"
+                    value={returnDate}
+                    onChange={setReturnDate}
+                    min={departureDate}
+                />
 
-                <div className={styles.filterItem}>
-                    <span className={styles.label}>Travelers</span>
-                    <div className={styles.filterValue}>
-                        <User size={16} className="text-blue-400" />
-                        <span>{passengers} Adults</span>
-                        <ChevronDown size={14} style={{ opacity: 0.5 }} />
-                    </div>
-                </div>
+                <CustomSelect
+                    label="Travelers"
+                    icon={User}
+                    value={passengers}
+                    onChange={setPassengers}
+                    options={[
+                        { value: 1, label: '1 Adult' },
+                        { value: 2, label: '2 Adults' },
+                        { value: 3, label: '3 Adults' },
+                        { value: 4, label: '4 Adults' },
+                        { value: 5, label: '5 Adults' }
+                    ]}
+                />
 
-                <div className={styles.filterItem}>
-                    <span className={styles.label}>Class</span>
-                    <div className={styles.filterValue}>
-                        <div style={{ width: 16, height: 16, background: '#0EA5E9', borderRadius: 4 }}></div>
-                        <span>{tripClass}</span>
-                        <ChevronDown size={14} style={{ opacity: 0.5 }} />
-                    </div>
-                </div>
+                <CustomSelect
+                    label="Class"
+                    icon={Briefcase}
+                    value={tripClass}
+                    onChange={setTripClass}
+                    iconColor="#0EA5E9"
+                    options={[
+                        { value: 'Economy', label: 'Economy' },
+                        { value: 'Business', label: 'Business' },
+                        { value: 'First', label: 'First Class' }
+                    ]}
+                />
 
             </div>
         </div>

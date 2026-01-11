@@ -1,0 +1,99 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+    position: relative;
+    min-width: 140px;
+}
+
+.container:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 0.25rem;
+}
+
+.valueRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: white;
+}
+
+/* Custom Dropdown Styles */
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+    min-width: 180px;
+    /* Slightly wider than container */
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    z-index: 100;
+    border: 1px solid #e2e8f0;
+    animation: slideIn 0.2s ease-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownItem {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropdownItem:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.dropdownItem.selected {
+    background: #f0f9ff;
+    color: #0284c7;
+}
+
+/* Invisible overlay to close dropdown on click outside */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99;
+    cursor: default;
+}

@@ -8,6 +8,8 @@
     transition: background 0.2s;
     position: relative;
     min-width: 140px;
+    border: 1px solid transparent;
+    /* Prevent layout shift on focus */
 }
 
 .container:hover {
@@ -31,23 +33,118 @@
     color: white;
 }
 
-/* 
-   We overlay the actual date input on top of the everything with opacity 0.
-   This ensures clicking anywhere triggers the browser's native date picker 
-   at the correct position.
-*/
-.dateInput {
+/* Calendar Popup */
+.calendarPopup {
     position: absolute;
-    top: 0;
+    top: 100%;
     left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 10;
+    margin-top: 0.5rem;
+    background: white;
+    color: #0f172a;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    z-index: 100;
+    width: 280px;
+    border: 1px solid #e2e8f0;
+    animation: slideIn 0.2s ease-out;
 }
 
-/* 
-   Optional: If we want to use the browser's picker icon instead of our own structure,
-   we wouldn't do the opacity 0 trick. But for "Premium" design, we want our custom text.
-*/
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.monthTitle {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.navBtn {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.1s;
+}
+
+.navBtn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.dayLabel {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.dayBtn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #334155;
+    transition: all 0.1s;
+}
+
+.dayBtn:hover:not(:disabled) {
+    background: #f1f5f9;
+}
+
+.daySelected {
+    background: #0ea5e9 !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.dayDisabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99;
+    background: transparent;
+}
