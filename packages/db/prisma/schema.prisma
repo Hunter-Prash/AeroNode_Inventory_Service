@@ -7,10 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
 model refresh_tokens {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.Uuid
   token_hash String
+  status UserStatus @default(ACTIVE)
   revoked_at DateTime? @db.Timestamptz(6)
   expires_at DateTime  @db.Timestamptz(6)
   created_at DateTime  @default(now()) @db.Timestamptz(6)

@@ -3,11 +3,9 @@ import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import type { PrismaClient } from "@repo/db";
-// NOTE: In ts-node-dev / transpile-only mode, Node sometimes treats workspace packages as CJS.
-// Using require here avoids named-export interop issues that can result in `prisma` being undefined.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { prisma } = require("@repo/db") as { prisma: PrismaClient };
+import { PrismaClient, UserStatus } from "@repo/db";
+
+const prisma = new PrismaClient();
 
 
 export const authRouter = Router();
