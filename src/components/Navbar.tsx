@@ -3,8 +3,13 @@
 import Link from 'next/link';
 import { Plane, Menu } from 'lucide-react';
 import styles from './Navbar.module.css';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
   return (
     <nav className={styles.navbar}>
       <div className="container">
@@ -17,8 +22,19 @@ export default function Navbar() {
           </div>
 
           <div className={styles.authButtons}>
-            <button className={styles.signInBtn} onClick={() => alert('Sign In clicked')}>Sign In</button>
-            <button className={styles.joinBtn} onClick={() => alert('Join Club clicked')}>Join Club</button>
+            {user ? (
+              <>
+                <span style={{ marginRight: '1rem', fontWeight: 500, color: 'var(--foreground)' }}>
+                  Hi, {user.name || 'Traveler'}
+                </span>
+                <button className={styles.signInBtn} onClick={logout}>Sign Out</button>
+              </>
+            ) : (
+              <>
+                <button className={styles.signInBtn} onClick={() => router.push('/login')}>Sign In</button>
+                <button className={styles.joinBtn} onClick={() => router.push('/register')}>Join Club</button>
+              </>
+            )}
           </div>
 
           <button className={styles.mobileMenuBtn} onClick={() => alert('Mobile menu clicked')}>
