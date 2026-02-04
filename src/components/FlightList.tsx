@@ -13,7 +13,7 @@ export default function FlightList() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:3000/flights')
+        fetch('http://localhost:4000/flights')
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch flights');
                 return res.json();

@@ -30,7 +30,7 @@ export default function RegisterPage() {
                 border: '1px solid var(--border)', width: '100%', maxWidth: '400px',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
             }}>
-                <h1 style={{ marginBottom: '1.5rem', fontSize: '1.75rem', fontWeight: 700, textAlign: 'center' }}>Join SkyLedger</h1>
+                <h1 style={{ marginBottom: '1.5rem', fontSize: '1.75rem', fontWeight: 700, textAlign: 'center' }}>Join Aeronode</h1>
                 {error && <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <input
