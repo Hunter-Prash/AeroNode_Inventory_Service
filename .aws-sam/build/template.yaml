@@ -54,9 +54,6 @@ Resources:
       BuildProperties:
         EntryPoints:
         - src/index.ts
-        External:
-        - '@prisma/client'
-        - .prisma/client
         Minify: true
         Sourcemap: true
         Target: es2020
