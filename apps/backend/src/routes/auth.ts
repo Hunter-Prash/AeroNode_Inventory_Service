@@ -1,9 +1,9 @@
 
 import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { PrismaClient, UserStatus } from "@repo/db";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

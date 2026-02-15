@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "AeroNode Inventory Service \u2013 SAM template Deploys two Lambda functions:\
+  \ Backend & Execution Backend\n"
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    MemorySize: 256
+    Architectures:
+    - x86_64
+    Environment:
+      Variables:
+        NODE_ENV: production
+        DB_HOST: aeronode-rds-server
+        DB_PORT: '5432'
+        DB_USER: postgres
+        DB_PASSWORD: Admin$1234
+        DB_NAME: AeroNode-Central-DB
+    VpcConfig:
+      SubnetIds:
+      - subnet-09ce27b883b875abe
+      - subnet-018a573fd1dd55c65
+      SecurityGroupIds:
+      - sg-0caa1008d144d961d
+Resources:
+  BackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: aeronode-backend
+      Description: Main backend API (auth, health, etc.)
+      CodeUri: BackendFunction
+      Handler: index.handler
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            Path: /api/backend/{proxy+}
+            Method: ANY
+            ApiId:
+              Ref: SharedApi
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /api/backend
+            Method: ANY
+            ApiId:
+              Ref: SharedApi
+      Environment:
+        Variables:
+          NODE_OPTIONS: ' --enable-source-maps'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/index.ts
+        External:
+        - '@prisma/client'
+        - .prisma/client
+        Minify: true
+        Sourcemap: true
+        Target: es2020
+      SamResourceId: BackendFunction
+  ExecutionBackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: aeronode-execution-backend
+      Description: Execution backend API (flights, scheduling, etc.)
+      CodeUri: ExecutionBackendFunction
+      Handler: index.handler
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            Path: /api/execution/{proxy+}
+            Method: ANY
+            ApiId:
+              Ref: SharedApi
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /api/execution
+            Method: ANY
+            ApiId:
+              Ref: SharedApi
+      Environment:
+        Variables:
+          AMADEUS_API_KEY: vg7b10LesGKTaAwKZun65FxAnbjMKahb
+          AMADEUS_API_SECRET: X0IvALEms2Z8k8TN
+          NODE_OPTIONS: ' --enable-source-maps'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/index.ts
+        Minify: true
+        Sourcemap: true
+        Target: es2020
+      SamResourceId: ExecutionBackendFunction
+  SharedApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowOrigins:
+        - '*'
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - '*'
+Outputs:
+  ApiUrl:
+    Description: Base URL of the shared API Gateway
+    Value:
+      Fn::Sub: https://${SharedApi}.execute-api.${AWS::Region}.amazonaws.com/prod
