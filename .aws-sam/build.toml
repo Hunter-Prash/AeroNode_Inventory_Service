@@ -42,6 +42,10 @@ EntryPoints = ["src/index.ts"]
 
 
 
+
+
+
+
 [function_build_definitions.567201fc-32de-4827-b560-f62fa69804e8]
 codeuri = "D:\\AERO_NODE\\AeroNode_Inventory_Service\\apps\\backend"
 runtime = "nodejs20.x"
@@ -59,6 +63,10 @@ Minify = false
 Target = "es2020"
 Sourcemap = false
 EntryPoints = ["src/index.ts"]
+
+
+
+
 
 
 

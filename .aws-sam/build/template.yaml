@@ -17,12 +17,6 @@ Globals:
         DB_USER: postgres
         DB_PASSWORD: Admin$1234
         DB_NAME: AeroNode-Central-DB
-    VpcConfig:
-      SubnetIds:
-      - subnet-09ce27b883b875abe
-      - subnet-018a573fd1dd55c65
-      SecurityGroupIds:
-      - sg-0caa1008d144d961d
 Resources:
   BackendFunction:
     Type: AWS::Serverless::Function
@@ -31,6 +25,12 @@ Resources:
       Description: Main backend API (auth, health, etc.)
       CodeUri: BackendFunction
       Handler: index.handler
+      VpcConfig:
+        SubnetIds:
+        - subnet-09ce27b883b875abe
+        - subnet-018a573fd1dd55c65
+        SecurityGroupIds:
+        - sg-0caa1008d144d961d
       Events:
         ApiProxy:
           Type: HttpApi

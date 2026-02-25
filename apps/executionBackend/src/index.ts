@@ -1,4 +1,4 @@
-import { searchFlights, priceFlights, getSeatmap, postSeatmap } from "./routes/flight";
+import { searchFlights, priceFlights, getSeatmap, postSeatmap, createBooking } from "./routes/flight";
 
 function json(status: number, data: any) {
     return { statusCode: status, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) };
@@ -13,6 +13,7 @@ export async function handler(event: any) {
     if (path === "/flights/search" && method === "POST") return searchFlights(body);
     if (path === "/flights/price" && method === "POST") return priceFlights(body);
     if (path === "/flights/seatmap" && method === "POST") return postSeatmap(body);
+    if (path === "/flights/book" && method === "POST") return createBooking(body);
 
     const seatsMatch = path.match(/^\/flights\/([^/]+)\/seats$/);
     if (seatsMatch && method === "GET") return getSeatmap(seatsMatch[1]);

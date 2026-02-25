@@ -87,3 +87,33 @@ export async function postSeatmap(body: any) {
         return json(status, { error: message });
     }
 }
+
+// POST /flights/book
+export async function createBooking(body: any) {
+    try {
+        const { flightOffers, travelers } = body;
+        if (!flightOffers || !Array.isArray(flightOffers) || !flightOffers.length) {
+            return json(400, { error: "Missing or invalid flightOffers array" });
+        }
+        if (!travelers || !Array.isArray(travelers) || !travelers.length) {
+            return json(400, { error: "Missing or invalid travelers array" });
+        }
+
+        const response = await amadeus.booking.flightOrders.post(
+            JSON.stringify({
+                data: {
+                    type: "flight-order",
+                    flightOffers,
+                    travelers
+                }
+            }),
+        );
+
+        return json(200, JSON.parse(response.body));
+    } catch (error: any) {
+        console.error("Amadeus booking error:", error);
+        const status = error.response?.statusCode || 500;
+        const message = error.response?.result?.errors?.[0]?.detail || "Failed to create booking";
+        return json(status, { error: message });
+    }
+}
