@@ -6551,11 +6551,10 @@ var require_buffer_reader = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.BufferReader = void 0;
-    var emptyBuffer = Buffer.allocUnsafe(0);
     var BufferReader = class {
       constructor(offset = 0) {
         this.offset = offset;
-        this.buffer = emptyBuffer;
+        this.buffer = Buffer.allocUnsafe(0);
         this.encoding = "utf-8";
       }
       setBuffer(offset, buffer) {
@@ -7490,7 +7489,6 @@ var require_lib = __commonJS({
 // node_modules/pg/lib/client.js
 var require_client = __commonJS({
   "node_modules/pg/lib/client.js"(exports2, module2) {
-    "use strict";
     var EventEmitter = require("events").EventEmitter;
     var utils = require_utils();
     var nodeUtils = require("util");
@@ -7504,22 +7502,27 @@ var require_client = __commonJS({
     var activeQueryDeprecationNotice = nodeUtils.deprecate(
       () => {
       },
-      "Client.activeQuery is deprecated and will be removed in a future version."
+      "Client.activeQuery is deprecated and will be removed in pg@9.0"
     );
     var queryQueueDeprecationNotice = nodeUtils.deprecate(
       () => {
       },
-      "Client.queryQueue is deprecated and will be removed in a future version."
+      "Client.queryQueue is deprecated and will be removed in pg@9.0."
     );
     var pgPassDeprecationNotice = nodeUtils.deprecate(
       () => {
       },
-      "pgpass support is deprecated and will be removed in a future version. You can provide an async function as the password property to the Client/Pool constructor that returns a password instead. Within this funciton you can call the pgpass module in your own code."
+      "pgpass support is deprecated and will be removed in pg@9.0. You can provide an async function as the password property to the Client/Pool constructor that returns a password instead. Within this function you can call the pgpass module in your own code."
     );
     var byoPromiseDeprecationNotice = nodeUtils.deprecate(
       () => {
       },
-      "Passing a custom Promise implementation to the Client/Pool constructor is deprecated and will be removed in a future version."
+      "Passing a custom Promise implementation to the Client/Pool constructor is deprecated and will be removed in pg@9.0."
+    );
+    var queryQueueLengthDeprecationNotice = nodeUtils.deprecate(
+      () => {
+      },
+      "Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use asycn/await or an external async flow control mechanism instead."
     );
     var Client2 = class extends EventEmitter {
       constructor(config) {
@@ -7691,7 +7694,7 @@ var require_client = __commonJS({
       _getPassword(cb) {
         const con = this.connection;
         if (typeof this.password === "function") {
-          this._Promise.resolve().then(() => this.password()).then((pass) => {
+          this._Promise.resolve().then(() => this.password(this.connectionParameters)).then((pass) => {
             if (pass !== void 0) {
               if (typeof pass !== "string") {
                 con.emit("error", new TypeError("Password must be a string"));
@@ -7997,8 +8000,12 @@ var require_client = __commonJS({
         } else if (typeof config.submit === "function") {
           readTimeout = config.query_timeout || this.connectionParameters.query_timeout;
           result = query2 = config;
-          if (typeof values === "function") {
-            query2.callback = query2.callback || values;
+          if (!query2.callback) {
+            if (typeof values === "function") {
+              query2.callback = values;
+            } else if (callback) {
+              query2.callback = callback;
+            }
           }
         } else {
           readTimeout = config.query_timeout || this.connectionParameters.query_timeout;
@@ -8013,7 +8020,8 @@ var require_client = __commonJS({
           }
         }
         if (readTimeout) {
-          queryCallback = query2.callback;
+          queryCallback = query2.callback || (() => {
+          });
           readTimeoutTimer = setTimeout(() => {
             const error = new Error("Query read timeout");
             process.nextTick(() => {
@@ -8050,6 +8058,9 @@ var require_client = __commonJS({
             query2.handleError(new Error("Client was closed and is not queryable"), this.connection);
           });
           return result;
+        }
+        if (this._queryQueue.length > 0) {
+          queryQueueLengthDeprecationNotice();
         }
         this._queryQueue.push(query2);
         this._pulseQueryQueue();
@@ -8288,9 +8299,15 @@ var require_pg_pool = __commonJS({
         let timeoutHit = false;
         if (this.options.connectionTimeoutMillis) {
           tid = setTimeout(() => {
-            this.log("ending client due to timeout");
-            timeoutHit = true;
-            client.connection ? client.connection.stream.destroy() : client.end();
+            if (client.connection) {
+              this.log("ending client due to timeout");
+              timeoutHit = true;
+              client.connection.stream.destroy();
+            } else if (!client.isConnected()) {
+              this.log("ending client due to timeout");
+              timeoutHit = true;
+              client.end();
+            }
           }, this.options.connectionTimeoutMillis);
         }
         this.log("connecting new client");
@@ -8630,7 +8647,7 @@ var require_query2 = __commonJS({
 // node_modules/pg/lib/native/client.js
 var require_client2 = __commonJS({
   "node_modules/pg/lib/native/client.js"(exports2, module2) {
-    "use strict";
+    var nodeUtils = require("util");
     var Native;
     try {
       Native = require("pg-native");
@@ -8642,6 +8659,11 @@ var require_client2 = __commonJS({
     var util = require("util");
     var ConnectionParameters = require_connection_parameters();
     var NativeQuery = require_query2();
+    var queryQueueLengthDeprecationNotice = nodeUtils.deprecate(
+      () => {
+      },
+      "Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use asycn/await or an external async flow control mechanism instead."
+    );
     var Client2 = module2.exports = function(config) {
       EventEmitter.call(this);
       config = config || {};
@@ -8763,7 +8785,8 @@ var require_client2 = __commonJS({
         }
       }
       if (readTimeout) {
-        queryCallback = query2.callback;
+        queryCallback = query2.callback || (() => {
+        });
         readTimeoutTimer = setTimeout(() => {
           const error = new Error("Query read timeout");
           process.nextTick(() => {
@@ -8797,6 +8820,9 @@ var require_client2 = __commonJS({
         });
         return result;
       }
+      if (this._queryQueue.length > 0) {
+        queryQueueLengthDeprecationNotice();
+      }
       this._queryQueue.push(query2);
       this._pulseQueryQueue();
       return result;
@@ -8814,6 +8840,7 @@ var require_client2 = __commonJS({
         });
       }
       this.native.end(function() {
+        self._connected = false;
         self._errorAllQueries(new Error("Connection terminated"));
         process.nextTick(() => {
           self.emit("end");
@@ -8863,6 +8890,9 @@ var require_client2 = __commonJS({
     };
     Client2.prototype.getTypeParser = function(oid, format) {
       return this._types.getTypeParser(oid, format);
+    };
+    Client2.prototype.isConnected = function() {
+      return this._connected;
     };
   }
 });

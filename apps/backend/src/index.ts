@@ -15,3 +15,4 @@ export async function handler(event: any) {
 
   return json(404, { error: "Not found" });
 }
+

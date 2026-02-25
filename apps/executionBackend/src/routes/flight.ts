@@ -55,6 +55,7 @@ export async function priceFlights(body: any) {
 }
 
 // GET /flights/:flightId/seats
+//this GET route uses flightOrderId, which means: you can only call it after you’ve created a flight order (booking) and you have that flightOrderId.
 export async function getSeatmap(flightId: string) {
     try {
         const response = await amadeus.shopping.seatmaps.get({ flightOrderId: flightId });
@@ -76,7 +77,7 @@ export async function postSeatmap(body: any) {
         }
 
         const response = await amadeus.shopping.seatmaps.post(
-            JSON.stringify({ data: { type: "flight-offers-seatmaps", flightOffers } }),
+            JSON.stringify({ data: flightOffers }),
         );
 
         return json(200, JSON.parse(response.body));
