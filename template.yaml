@@ -55,9 +55,12 @@ Resources:
             Path: /api/backend
             Method: ANY
             ApiId: !Ref SharedApi
-      # Environment:
-      #   Variables:
-      #     SOME_BACKEND_SPECIFIC_VAR: value
+      Environment:
+        Variables:
+          ACCESS_TOKEN_SECRET: "abb725263ef8ef4bb9df8d0b96475b44"
+          REFRESH_TOKEN_SECRET: "0d1fedd68b2bdffd5d4893573b7ddbf9"
+          ADMIN_BOOTSTRAP_TOKEN: "ADMIN_BOOTSTRAP_TOKEN_value_here"
+          DATABASE_URL: "postgresql://postgres:Admin%241234@aeronode-rds-server.cf28seae0k2m.ap-south-1.rds.amazonaws.com:5432/postgres?schema=public&sslmode=require"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

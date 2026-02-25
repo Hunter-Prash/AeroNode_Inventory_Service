@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { flightRouter } from "./routes/flight";
+import { flightDetailsRouter } from "./routes/flightDetails";
 import cors from "cors";
 import serverlessExpress from "@vendia/serverless-express";
 
@@ -9,6 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/flights", flightRouter);
+app.use("/flights", flightDetailsRouter);
 
 app.get("/health", (_, res) => res.json({ ok: true }));
 
