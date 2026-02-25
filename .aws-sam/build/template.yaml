@@ -48,12 +48,19 @@ Resources:
               Ref: SharedApi
       Environment:
         Variables:
+          ACCESS_TOKEN_SECRET: abb725263ef8ef4bb9df8d0b96475b44
+          REFRESH_TOKEN_SECRET: '0d1fedd68b2bdffd5d4893573b7ddbf9'
+          ADMIN_BOOTSTRAP_TOKEN: ADMIN_BOOTSTRAP_TOKEN_value_here
+          DATABASE_URL: postgresql://postgres:Admin%241234@aeronode-rds-server.cf28seae0k2m.ap-south-1.rds.amazonaws.com:5432/postgres?schema=public&sslmode=require
           NODE_OPTIONS: ' --enable-source-maps'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         EntryPoints:
         - src/index.ts
+        External:
+        - '@prisma/client'
+        - .prisma/client
         Minify: true
         Sourcemap: true
         Target: es2020
