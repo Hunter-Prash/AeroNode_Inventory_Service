@@ -1,26 +1,21 @@
-import "dotenv/config";
-import express from "express";
-import { flightRouter } from "./routes/flight";
-import { flightDetailsRouter } from "./routes/flightDetails";
-import cors from "cors";
-import serverlessExpress from "@vendia/serverless-express";
+import { searchFlights, priceFlights, getSeatmap, postSeatmap } from "./routes/flight";
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+function json(status: number, data: any) {
+    return { statusCode: status, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) };
+}
 
-app.use("/flights", flightRouter);
-app.use("/flights", flightDetailsRouter);
+export async function handler(event: any) {
+    const method = event.requestContext.http.method;
+    const path = event.rawPath.replace("/prod/api/execution", "") || "/";
+    const body = event.body ? JSON.parse(event.body) : {};
 
-app.get("/health", (_, res) => res.json({ ok: true }));
+    if (path === "/health" && method === "GET") return json(200, { ok: true });
+    if (path === "/flights/search" && method === "POST") return searchFlights(body);
+    if (path === "/flights/price" && method === "POST") return priceFlights(body);
+    if (path === "/flights/seatmap" && method === "POST") return postSeatmap(body);
 
-// ── Lambda handler (used by AWS SAM / API Gateway) ──
-export const handler = serverlessExpress({ app });
+    const seatsMatch = path.match(/^\/flights\/([^/]+)\/seats$/);
+    if (seatsMatch && method === "GET") return getSeatmap(seatsMatch[1]);
 
-// ── Local dev server (ignored when running in Lambda) ──
-if (process.env.NODE_ENV !== "production") {
-    const PORT = process.env.PORT || 3001;
-    app.listen(PORT, () =>
-        console.log(`Execution Backend running on port ${PORT}`),
-    );
+    return json(404, { error: "Not found" });
 }

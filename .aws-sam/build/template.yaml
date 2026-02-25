@@ -12,7 +12,7 @@ Globals:
     Environment:
       Variables:
         NODE_ENV: production
-        DB_HOST: aeronode-rds-server
+        DB_HOST: aeronode-rds-server.cf28seae0k2m.ap-south-1.rds.amazonaws.com
         DB_PORT: '5432'
         DB_USER: postgres
         DB_PASSWORD: Admin$1234
@@ -51,18 +51,13 @@ Resources:
           ACCESS_TOKEN_SECRET: abb725263ef8ef4bb9df8d0b96475b44
           REFRESH_TOKEN_SECRET: '0d1fedd68b2bdffd5d4893573b7ddbf9'
           ADMIN_BOOTSTRAP_TOKEN: ADMIN_BOOTSTRAP_TOKEN_value_here
-          DATABASE_URL: postgresql://postgres:Admin%241234@aeronode-rds-server.cf28seae0k2m.ap-south-1.rds.amazonaws.com:5432/postgres?schema=public&sslmode=require
-          NODE_OPTIONS: ' --enable-source-maps'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         EntryPoints:
         - src/index.ts
-        External:
-        - '@prisma/client'
-        - .prisma/client
-        Minify: true
-        Sourcemap: true
+        Minify: false
+        Sourcemap: false
         Target: es2020
       SamResourceId: BackendFunction
   ExecutionBackendFunction:

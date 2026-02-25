@@ -1,26 +1,17 @@
-import "dotenv/config";
-import express from "express";
-import { authRouter } from "./routes/auth";
-import cors from "cors";
-import serverlessExpress from "@vendia/serverless-express";
+import { register, login } from "./routes/auth";
 
-const app = express();
-app.use(express.json());
+function json(status: number, data: any) {
+  return { statusCode: status, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) };
+}
 
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-  }),
-);
+export async function handler(event: any) {
+  const method = event.requestContext.http.method;
+  const path = event.rawPath.replace("/prod/api/backend", "") || "/";
+  const body = event.body ? JSON.parse(event.body) : {};
 
-app.use("/auth", authRouter);
+  if (path === "/health" && method === "GET") return json(200, { ok: true });
+  if (path === "/auth/register" && method === "POST") return register(body);
+  if (path === "/auth/login" && method === "POST") return login(body);
 
-app.get("/health", (_, res) => res.json({ ok: true }));
-
-// ── Lambda handler (used by AWS SAM / API Gateway) ──
-export const handler = serverlessExpress({ app });
-
-// ── Local dev server (ignored when running in Lambda) ──
-if (process.env.NODE_ENV !== "production") {
-  app.listen(process.env.PORT || 3001, () => console.log("running"));
+  return json(404, { error: "Not found" });
 }

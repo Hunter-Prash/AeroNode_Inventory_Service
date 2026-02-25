@@ -1,34 +1,89 @@
-import { Router, type Request, type Response } from "express";
 import amadeus from "../services/amadeus";
 
-export const flightRouter = Router();
+function json(statusCode: number, data: any) {
+    return {
+        statusCode,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    };
+}
 
-/**
- * POST /flights/search
- * Body: { origin, destination, date, adults }
- */
-flightRouter.post("/search", async (req: Request, res: Response) => {
+// POST /flights/search
+export async function searchFlights(body: any) {
     try {
-        const { origin, destination, date, adults } = req.body;
-
+        const { origin, destination, date, adults } = body;
         if (!origin || !destination || !date) {
-            return res.status(400).json({ message: "Missing required fields: origin, destination, date" });
+            return json(400, { error: "Missing required fields: origin, destination, date" });
         }
 
         const response = await amadeus.shopping.flightOffersSearch.get({
             originLocationCode: origin,
             destinationLocationCode: destination,
             departureDate: date,
-            adults: adults || '1',
-            max: '10'
+            adults: adults || "1",
+            max: "10",
         });
 
-        return res.json(JSON.parse(response.body));
+        return json(200, JSON.parse(response.body));
     } catch (error: any) {
-        console.error("Amadeus API Error:", error);
-        // Amadeus errors usually have a response object or code
+        console.error("Amadeus search error:", error);
         const status = error.response?.statusCode || 500;
-        const message = error.response?.result?.errors?.[0]?.detail || "Failed to fetch flight offers";
-        return res.status(status).json({ message });
+        const message = error.response?.result?.errors?.[0]?.detail || "Failed to fetch flights";
+        return json(status, { error: message });
     }
-});
+}
+
+// POST /flights/price
+export async function priceFlights(body: any) {
+    try {
+        const { flightOffers } = body;
+        if (!flightOffers || !Array.isArray(flightOffers) || !flightOffers.length) {
+            return json(400, { error: "Missing or invalid flightOffers array" });
+        }
+
+        const response = await amadeus.shopping.flightOffers.pricing.post(
+            JSON.stringify({ data: { type: "flight-offers-pricing", flightOffers } }),
+        );
+
+        return json(200, JSON.parse(response.body));
+    } catch (error: any) {
+        console.error("Amadeus pricing error:", error);
+        const status = error.response?.statusCode || 500;
+        const message = error.response?.result?.errors?.[0]?.detail || "Failed to price flight";
+        return json(status, { error: message });
+    }
+}
+
+// GET /flights/:flightId/seats
+export async function getSeatmap(flightId: string) {
+    try {
+        const response = await amadeus.shopping.seatmaps.get({ flightOrderId: flightId });
+        return json(200, JSON.parse(response.body));
+    } catch (error: any) {
+        console.error("Amadeus seatmap error:", error);
+        const status = error.response?.statusCode || 500;
+        const message = error.response?.result?.errors?.[0]?.detail || "Failed to fetch seat map";
+        return json(status, { error: message });
+    }
+}
+
+// POST /flights/seatmap
+export async function postSeatmap(body: any) {
+    try {
+        const { flightOffers } = body;
+        if (!flightOffers || !Array.isArray(flightOffers) || !flightOffers.length) {
+            return json(400, { error: "Missing or invalid flightOffers array" });
+        }
+
+        const response = await amadeus.shopping.seatmaps.post(
+            JSON.stringify({ data: { type: "flight-offers-seatmaps", flightOffers } }),
+        );
+
+        return json(200, JSON.parse(response.body));
+    } catch (error: any) {
+        console.error("Amadeus seatmap POST error:", error);
+        const status = error.response?.statusCode || 500;
+        const message = error.response?.result?.errors?.[0]?.detail || "Failed to fetch seat map";
+        return json(status, { error: message });
+    }
+}

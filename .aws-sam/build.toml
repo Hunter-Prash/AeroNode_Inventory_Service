@@ -25,7 +25,24 @@ EntryPoints = ["src/index.ts"]
 
 
 
-[function_build_definitions.a1ef8cc8-b97f-45ac-b257-aca22bc99e03]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[function_build_definitions.567201fc-32de-4827-b560-f62fa69804e8]
 codeuri = "D:\\AERO_NODE\\AeroNode_Inventory_Service\\apps\\backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
@@ -34,15 +51,17 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["BackendFunction"]
 
-[function_build_definitions.a1ef8cc8-b97f-45ac-b257-aca22bc99e03.metadata]
+[function_build_definitions.567201fc-32de-4827-b560-f62fa69804e8.metadata]
 BuildMethod = "esbuild"
 
-[function_build_definitions.a1ef8cc8-b97f-45ac-b257-aca22bc99e03.metadata.BuildProperties]
-Minify = true
+[function_build_definitions.567201fc-32de-4827-b560-f62fa69804e8.metadata.BuildProperties]
+Minify = false
 Target = "es2020"
-Sourcemap = true
+Sourcemap = false
 EntryPoints = ["src/index.ts"]
-External = ["@prisma/client", ".prisma/client"]
+
+
+
 
 
 [layer_build_definitions]
